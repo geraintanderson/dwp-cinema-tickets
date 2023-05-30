@@ -37,10 +37,4 @@ describe('TicketService', () => {
       expect(validateTicketRequestsForOrder).toHaveBeenCalledWith(ticketTypeRequests);
     });
   });
-
-  // it('limits the maximum number of tickets for a single purchase', () => {
-  //   const accountId = 1;
-  //   const ticketTypeRequests = [];
-  //   ticketsService.purchaseTickets(accountId, ...ticketTypeRequests);
-  // });
 });

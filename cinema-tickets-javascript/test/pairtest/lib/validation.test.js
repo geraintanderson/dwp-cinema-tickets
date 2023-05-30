@@ -50,6 +50,21 @@ describe('validation', () => {
       }).toThrow(new RangeError('Number of tickets per order must not exceed 20'));
     });
 
+    it('should throw an error if no tickets are requested', () => {
+      // NOTE: This is not in the spec. We need to clarify the required behaviour when no tickets are requested.
+      expect(() => {
+        const ticketTypeRequests = [];
+        validateTicketRequestsForOrder(ticketTypeRequests);
+      }).toThrow(new RangeError('At least one ticket must be requested'));
+    });
+
+    it('should throw an error if an infant or child ticket is requested without an adult ticket', () => {
+      expect(() => {
+        const ticketTypeRequests = [new TicketTypeRequest('INFANT', 10), new TicketTypeRequest('CHILD', 1)];
+        validateTicketRequestsForOrder(ticketTypeRequests);
+      }).toThrow(new RangeError('A Child or Infant ticket must be accompanied by an Adult ticket'));
+    });
+
     it('should return true if the ticketTypeRequests are valid for a single order', () => {
       const ticketTypeRequests = [new TicketTypeRequest('ADULT', 1)];
       const isValid = validateTicketRequestsForOrder(ticketTypeRequests);

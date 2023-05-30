@@ -25,6 +25,13 @@ export const validateTicketRequestsForOrder = (ticketTypeRequests) => {
     }
   });
 
+  _validateNumberOfTicketsPerOrder(ticketTypeRequests);
+  _validateTicketCombinations(ticketTypeRequests);
+
+  return true;
+};
+
+const _validateNumberOfTicketsPerOrder = (ticketTypeRequests) => {
   const numberOfTicketsRequested = ticketTypeRequests.reduce((numberOfTickets, ticketTypeRequest) => {
     return numberOfTickets += ticketTypeRequest.getNoOfTickets();
   }, 0);
@@ -32,6 +39,15 @@ export const validateTicketRequestsForOrder = (ticketTypeRequests) => {
   if (numberOfTicketsRequested > MAXIMUM_TICKETS_PER_ORDER) {
     throw new RangeError(`Number of tickets per order must not exceed ${MAXIMUM_TICKETS_PER_ORDER}`);
   }
+};
 
-  return true;
+const _validateTicketCombinations = (ticketTypeRequests) => {
+  if (ticketTypeRequests.length === 0) {
+    throw new RangeError('At least one ticket must be requested');
+  }
+
+  const doesIncludeAdultTicket = !!ticketTypeRequests.find((ticketTypeRequest) => ticketTypeRequest.getTicketType() === 'ADULT');
+  if (!doesIncludeAdultTicket) {
+    throw new RangeError('A Child or Infant ticket must be accompanied by an Adult ticket');
+  }
 };
