@@ -27,7 +27,7 @@ export default class TicketService {
     // throws InvalidPurchaseException
     try {
       validateAccountId(accountId);
-      validateTicketRequestsForOrder(ticketTypeRequests);
+      validateTicketRequestsForOrder(this.#ticketConfig, ticketTypeRequests);
     } catch (error) {
       throw new InvalidPurchaseException(error.message);
     }

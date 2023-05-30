@@ -53,8 +53,19 @@ describe('TicketService', () => {
         new TicketTypeRequest('CHILD', 3),
         new TicketTypeRequest('ADULT', 4)
       ];
+      const ticketConfig = {
+        INFANT: {
+          price: 0
+        },
+        CHILD: {
+          price: 10
+        },
+        ADULT: {
+          price: 20
+        }
+      };
       ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
-      expect(validateTicketRequestsForOrder).toHaveBeenCalledWith(ticketTypeRequests);
+      expect(validateTicketRequestsForOrder).toHaveBeenCalledWith(ticketConfig, ticketTypeRequests);
     });
 
     it('throws an InvalidPurchaseException if the ticket request is invalid', () => {

@@ -14,14 +14,19 @@ export const validateAccountId = (accountId) => {
   return true;
 };
 
-export const validateTicketRequestsForOrder = (ticketTypeRequests) => {
+export const validateTicketRequestsForOrder = (ticketConfig, ticketTypeRequests) => {
   if (!Array.isArray(ticketTypeRequests)) {
     throw new TypeError('ticketTypeRequests must be an array');
   }
 
+  const validTicketTypes = Object.keys(ticketConfig);
   ticketTypeRequests.forEach((ticketTypeRequest) => {
     if (ticketTypeRequest instanceof TicketTypeRequest === false) {
       throw new TypeError('ticketTypeRequests must be an array of TicketTypeRequest');
+    }
+
+    if (!validTicketTypes.includes(ticketTypeRequest.getTicketType())) {
+      throw new TypeError(`type must be ${validTicketTypes.slice(0, -1).join(', ')}, or ${validTicketTypes.slice(-1)}`);
     }
   });
 

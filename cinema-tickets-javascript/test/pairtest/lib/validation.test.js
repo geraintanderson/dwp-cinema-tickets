@@ -25,18 +25,37 @@ describe('validation', () => {
   });
 
   describe('validateTicketRequestsForOrder', () => {
+    const ticketConfig = {
+      INFANT: {
+        price: 0
+      },
+      CHILD: {
+        price: 10
+      },
+      ADULT: {
+        price: 20
+      }
+    };
+
     it('should throw an error if ticketTypeRequests is not an array', () => {
       expect(() => {
         const ticketTypeRequests = 'XYZ';
-        validateTicketRequestsForOrder(ticketTypeRequests);
+        validateTicketRequestsForOrder(ticketConfig, ticketTypeRequests);
       }).toThrow(new TypeError('ticketTypeRequests must be an array'));
     });
 
     it('should throw an error if the items in ticketTypeRequests are not all of type TicketTypeRequest', () => {
       expect(() => {
         const ticketTypeRequests = [{type: 'ADULT', noOfTickets: 1}];
-        validateTicketRequestsForOrder(ticketTypeRequests);
+        validateTicketRequestsForOrder(ticketConfig, ticketTypeRequests);
       }).toThrow(new TypeError('ticketTypeRequests must be an array of TicketTypeRequest'));
+    });
+
+    it('should throw an error if an invalid ticket type is requested', () => {
+      expect(() => {
+        const ticketTypeRequests = [new TicketTypeRequest('VIP', 1)];
+        validateTicketRequestsForOrder(ticketConfig, ticketTypeRequests);
+      }).toThrow(new TypeError('type must be ADULT, CHILD, or INFANT'));
     });
 
     it('should throw an error if the total number of tickets requested exceeds the maximum', () => {
@@ -46,7 +65,7 @@ describe('validation', () => {
           new TicketTypeRequest('CHILD', 10),
           new TicketTypeRequest('ADULT', 10)
         ];
-        validateTicketRequestsForOrder(ticketTypeRequests);
+        validateTicketRequestsForOrder(ticketConfig, ticketTypeRequests);
       }).toThrow(new RangeError('Number of tickets per order must not exceed 20'));
     });
 
@@ -54,20 +73,20 @@ describe('validation', () => {
       // NOTE: This is not in the spec. We need to clarify the required behaviour when no tickets are requested.
       expect(() => {
         const ticketTypeRequests = [];
-        validateTicketRequestsForOrder(ticketTypeRequests);
+        validateTicketRequestsForOrder(ticketConfig, ticketTypeRequests);
       }).toThrow(new RangeError('At least one ticket must be requested'));
     });
 
     it('should throw an error if an infant or child ticket is requested without an adult ticket', () => {
       expect(() => {
         const ticketTypeRequests = [new TicketTypeRequest('INFANT', 10), new TicketTypeRequest('CHILD', 1)];
-        validateTicketRequestsForOrder(ticketTypeRequests);
+        validateTicketRequestsForOrder(ticketConfig, ticketTypeRequests);
       }).toThrow(new RangeError('A Child or Infant ticket must be accompanied by an Adult ticket'));
     });
 
     it('should return true if the ticketTypeRequests are valid for a single order', () => {
       const ticketTypeRequests = [new TicketTypeRequest('ADULT', 1)];
-      const isValid = validateTicketRequestsForOrder(ticketTypeRequests);
+      const isValid = validateTicketRequestsForOrder(ticketConfig, ticketTypeRequests);
 
       expect(isValid).toBe(true);
     });
