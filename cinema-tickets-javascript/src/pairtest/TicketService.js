@@ -1,7 +1,7 @@
 // import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import { validateAccountId, validateTicketRequestsForOrder } from './lib/validation.js';
-import { calculateTotalNumberOfSeatsForOrder } from './lib/seats.js';
+import { calculateTotalNumberOfSeats, calculateTotalPrice } from './lib/order.js';
 
 export default class TicketService {
   /**
@@ -24,7 +24,7 @@ export default class TicketService {
     validateAccountId(accountId);
     validateTicketRequestsForOrder(ticketTypeRequests);
 
-    const totalSeatsRequired = calculateTotalNumberOfSeatsForOrder(ticketTypeRequests);
-
+    const totalSeatsRequired = calculateTotalNumberOfSeats(ticketTypeRequests);
+    const totalOrderPrice = calculateTotalPrice(this.#ticketConfig, ticketTypeRequests);
   }
 }
