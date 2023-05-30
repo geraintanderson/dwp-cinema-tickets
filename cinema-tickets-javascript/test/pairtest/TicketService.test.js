@@ -3,15 +3,18 @@ import TicketTypeRequest from '../../src/pairtest/lib/TicketTypeRequest.js';
 import { validateAccountId, validateTicketRequestsForOrder } from '../../src/pairtest/lib/validation.js';
 import { calculateTotalNumberOfSeats, calculateTotalPrice } from '../../src/pairtest/lib/order.js';
 import TicketPaymentService from '../../src/thirdparty/paymentgateway/TicketPaymentService.js';
+import SeatReservationService from '../../src/thirdparty/seatbooking/SeatReservationService.js';
 
 jest.mock('../../src/pairtest/lib/validation.js');
 jest.mock('../../src/pairtest/lib/order.js');
 jest.mock('../../src/thirdparty/paymentgateway/TicketPaymentService.js');
+jest.mock('../../src/thirdparty/seatbooking/SeatReservationService.js');
 
 describe('TicketService', () => {
   describe('purchaseTickets', () => {
     let ticketService;
     const DUMMY_ORDER_PRICE = 30;
+    const DUMMY_ORDER_SEATS = 7;
 
     beforeEach(() => {
       jest.clearAllMocks();
@@ -86,6 +89,37 @@ describe('TicketService', () => {
       ];
       ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
       expect(calculateTotalNumberOfSeats).toHaveBeenCalledWith(ticketTypeRequests);
+    });
+
+    it('reserves the seats', () => {
+      const mockSeatReservationServiceInstance = SeatReservationService.mock.instances[0];
+      const mockReserveSeat = mockSeatReservationServiceInstance.reserveSeat;
+
+      const accountId = 1;
+      const ticketTypeRequests = [
+        new TicketTypeRequest('INFANT', 2),
+        new TicketTypeRequest('CHILD', 3),
+        new TicketTypeRequest('ADULT', 4)
+      ];
+      ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
+
+      expect(mockReserveSeat).toHaveBeenCalledWith(accountId, DUMMY_ORDER_SEATS);
+    });
+
+    it('returns the order details', () => {
+      const accountId = 1;
+      const ticketTypeRequests = [
+        new TicketTypeRequest('INFANT', 2),
+        new TicketTypeRequest('CHILD', 3),
+        new TicketTypeRequest('ADULT', 4)
+      ];
+      const orderDetails = ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
+
+      expect(orderDetails).toEqual({
+        // NOTE: The expected response type was not defined in the spec, and could be changed.
+        seats: DUMMY_ORDER_SEATS,
+        price: DUMMY_ORDER_PRICE
+      });
     });
   });
 });

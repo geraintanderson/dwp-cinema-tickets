@@ -3,7 +3,7 @@ import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import { validateAccountId, validateTicketRequestsForOrder } from './lib/validation.js';
 import { calculateTotalNumberOfSeats, calculateTotalPrice } from './lib/order.js';
 import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
-
+import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
 export default class TicketService {
   /**
    * Should only have private methods other than the one below.
@@ -21,6 +21,7 @@ export default class TicketService {
   };
 
   #ticketPaymentService = new TicketPaymentService();
+  #seatReservationService = new SeatReservationService();
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
@@ -31,5 +32,11 @@ export default class TicketService {
     this.#ticketPaymentService.makePayment(accountId, totalOrderPrice);
 
     const totalSeatsRequired = calculateTotalNumberOfSeats(ticketTypeRequests);
+    this.#seatReservationService.reserveSeat(accountId, totalSeatsRequired);
+
+    return {
+      seats: totalSeatsRequired,
+      price: totalOrderPrice
+    };
   }
 }
