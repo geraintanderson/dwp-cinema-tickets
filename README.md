@@ -12,4 +12,6 @@ I have added eslint for linting and set the rules to be consistent with the exis
 
 ## Quickstart
 
-Pull the code and run the tests using `npm test` to run in watch mode or `npm run test:ci` to run once.
+* Clone the repository and navigate to the `cinema-tickets-javascript` directory.
+* Install dependencies using `npm install`
+* Run the tests using `npm test` to run in watch mode or `npm run test:ci` to run once.
