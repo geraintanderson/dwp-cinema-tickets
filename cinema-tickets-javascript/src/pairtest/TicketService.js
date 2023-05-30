@@ -25,8 +25,12 @@ export default class TicketService {
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
-    validateAccountId(accountId);
-    validateTicketRequestsForOrder(ticketTypeRequests);
+    try {
+      validateAccountId(accountId);
+      validateTicketRequestsForOrder(ticketTypeRequests);
+    } catch (error) {
+      throw new InvalidPurchaseException(error.message);
+    }
 
     const totalOrderPrice = calculateTotalPrice(this.#ticketConfig, ticketTypeRequests);
     this.#ticketPaymentService.makePayment(accountId, totalOrderPrice);

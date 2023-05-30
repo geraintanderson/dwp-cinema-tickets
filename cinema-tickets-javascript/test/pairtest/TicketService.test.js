@@ -4,6 +4,7 @@ import { validateAccountId, validateTicketRequestsForOrder } from '../../src/pai
 import { calculateTotalNumberOfSeats, calculateTotalPrice } from '../../src/pairtest/lib/order.js';
 import TicketPaymentService from '../../src/thirdparty/paymentgateway/TicketPaymentService.js';
 import SeatReservationService from '../../src/thirdparty/seatbooking/SeatReservationService.js';
+import InvalidPurchaseException from '../../src/pairtest/lib/InvalidPurchaseException.js';
 
 jest.mock('../../src/pairtest/lib/validation.js');
 jest.mock('../../src/pairtest/lib/order.js');
@@ -32,6 +33,19 @@ describe('TicketService', () => {
       expect(validateAccountId).toHaveBeenCalledWith(accountId);
     });
 
+    it('throws an InvalidPurchaseException if the account Id is invalid', () => {
+      validateAccountId.mockImplementation(() => {
+        throw new TypeError('validation error');
+      });
+
+      const accountId = 1;
+      const ticketTypeRequests = [];
+      
+      expect(() => {
+        ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
+      }).toThrow(new InvalidPurchaseException('validation error'));
+    });
+
     it('validates the ticket requests', () => {
       const accountId = 1;
       const ticketTypeRequests = [
@@ -41,6 +55,19 @@ describe('TicketService', () => {
       ];
       ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
       expect(validateTicketRequestsForOrder).toHaveBeenCalledWith(ticketTypeRequests);
+    });
+
+    it('throws an InvalidPurchaseException if the ticket request is invalid', () => {
+      validateTicketRequestsForOrder.mockImplementation(() => {
+        throw new TypeError('validation error');
+      });
+
+      const accountId = 1;
+      const ticketTypeRequests = [];
+      
+      expect(() => {
+        ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
+      }).toThrow(new InvalidPurchaseException('validation error'));
     });
 
     it('calculates the total order price required', () => {
