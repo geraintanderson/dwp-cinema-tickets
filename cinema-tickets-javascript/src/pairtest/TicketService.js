@@ -2,6 +2,7 @@
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import { validateAccountId, validateTicketRequestsForOrder } from './lib/validation.js';
 import { calculateTotalNumberOfSeats, calculateTotalPrice } from './lib/order.js';
+import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
 
 export default class TicketService {
   /**
@@ -19,12 +20,16 @@ export default class TicketService {
     }
   };
 
+  #ticketPaymentService = new TicketPaymentService();
+
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
     validateAccountId(accountId);
     validateTicketRequestsForOrder(ticketTypeRequests);
 
-    const totalSeatsRequired = calculateTotalNumberOfSeats(ticketTypeRequests);
     const totalOrderPrice = calculateTotalPrice(this.#ticketConfig, ticketTypeRequests);
+    this.#ticketPaymentService.makePayment(accountId, totalOrderPrice);
+
+    const totalSeatsRequired = calculateTotalNumberOfSeats(ticketTypeRequests);
   }
 }

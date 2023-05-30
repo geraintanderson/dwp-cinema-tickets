@@ -2,22 +2,27 @@ import TicketService from '../../src/pairtest/TicketService.js';
 import TicketTypeRequest from '../../src/pairtest/lib/TicketTypeRequest.js';
 import { validateAccountId, validateTicketRequestsForOrder } from '../../src/pairtest/lib/validation.js';
 import { calculateTotalNumberOfSeats, calculateTotalPrice } from '../../src/pairtest/lib/order.js';
+import TicketPaymentService from '../../src/thirdparty/paymentgateway/TicketPaymentService.js';
 
 jest.mock('../../src/pairtest/lib/validation.js');
 jest.mock('../../src/pairtest/lib/order.js');
+jest.mock('../../src/thirdparty/paymentgateway/TicketPaymentService.js');
 
 describe('TicketService', () => {
   describe('purchaseTickets', () => {
     let ticketService;
+    const DUMMY_ORDER_PRICE = 30;
 
     beforeEach(() => {
       jest.clearAllMocks();
       ticketService = new TicketService();
+      validateAccountId.mockReturnValue(true);
+      validateTicketRequestsForOrder.mockReturnValue(true);
+      calculateTotalPrice.mockReturnValue(DUMMY_ORDER_PRICE);
+      calculateTotalNumberOfSeats.mockReturnValue(7);
     });
 
     it('validates the account Id', () => {
-      validateAccountId.mockReturnValue(true);
-
       const accountId = 1;
       const ticketTypeRequests = [];
       ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
@@ -25,9 +30,6 @@ describe('TicketService', () => {
     });
 
     it('validates the ticket requests', () => {
-      validateAccountId.mockReturnValue(true);
-      validateTicketRequestsForOrder.mockReturnValue(true);
-
       const accountId = 1;
       const ticketTypeRequests = [
         new TicketTypeRequest('INFANT', 2),
@@ -38,27 +40,7 @@ describe('TicketService', () => {
       expect(validateTicketRequestsForOrder).toHaveBeenCalledWith(ticketTypeRequests);
     });
 
-    it('calculates the number of seats required', () => {
-      validateAccountId.mockReturnValue(true);
-      validateTicketRequestsForOrder.mockReturnValue(true);
-      calculateTotalNumberOfSeats.mockReturnValue(7);
-
-      const accountId = 1;
-      const ticketTypeRequests = [
-        new TicketTypeRequest('INFANT', 2),
-        new TicketTypeRequest('CHILD', 3),
-        new TicketTypeRequest('ADULT', 4)
-      ];
-      ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
-      expect(calculateTotalNumberOfSeats).toHaveBeenCalledWith(ticketTypeRequests);
-    });
-
     it('calculates the total order price required', () => {
-      validateAccountId.mockReturnValue(true);
-      validateTicketRequestsForOrder.mockReturnValue(true);
-      calculateTotalNumberOfSeats.mockReturnValue(7);
-      calculateTotalPrice.mockReturnValue(30);
-
       const accountId = 1;
       const ticketTypeRequests = [
         new TicketTypeRequest('INFANT', 2),
@@ -78,6 +60,32 @@ describe('TicketService', () => {
       };
       ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
       expect(calculateTotalPrice).toHaveBeenCalledWith(ticketConfig, ticketTypeRequests);
+    });
+
+    it('makes the payment', () => {
+      const mockTicketPaymentServiceInstance = TicketPaymentService.mock.instances[0];
+      const mockMakePayment = mockTicketPaymentServiceInstance.makePayment;
+
+      const accountId = 1;
+      const ticketTypeRequests = [
+        new TicketTypeRequest('INFANT', 2),
+        new TicketTypeRequest('CHILD', 3),
+        new TicketTypeRequest('ADULT', 4)
+      ];
+      ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
+
+      expect(mockMakePayment).toHaveBeenCalledWith(accountId, DUMMY_ORDER_PRICE);
+    });
+
+    it('calculates the number of seats required', () => {
+      const accountId = 1;
+      const ticketTypeRequests = [
+        new TicketTypeRequest('INFANT', 2),
+        new TicketTypeRequest('CHILD', 3),
+        new TicketTypeRequest('ADULT', 4)
+      ];
+      ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
+      expect(calculateTotalNumberOfSeats).toHaveBeenCalledWith(ticketTypeRequests);
     });
   });
 });
