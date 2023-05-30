@@ -8,5 +8,6 @@ export default class TicketService {
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
+    return 'XYZ'; // XXX: temp - delete this...
   }
 }
