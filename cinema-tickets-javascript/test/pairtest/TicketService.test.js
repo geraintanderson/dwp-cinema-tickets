@@ -1,32 +1,46 @@
-// // import { jest } from '@jest/globals';
+import TicketService from '../../src/pairtest/TicketService.js';
+import TicketTypeRequest from '../../src/pairtest/lib/TicketTypeRequest.js';
+import { validateAccountId, validateTicketRequestsForOrder } from '../../src/pairtest/lib/validation.js';
 
-// import TicketService from '../../src/pairtest/TicketService.js';
+jest.mock('../../src/pairtest/lib/validation.js');
 
-// import { validateAccountId } from '../../src/pairtest/lib/validation.js';
+describe('TicketService', () => {
+  describe('purchaseTickets', () => {
+    let ticketService;
 
-// jest.mock('../../src/pairtest/lib/validation.js');
+    beforeEach(() => {
+      jest.clearAllMocks();
+      ticketService = new TicketService();
+    });
 
-// describe('TicketService', () => {
-//   // jest.mock('../../src/pairtest/lib/validation.js');
-//   let ticketService;
+    it('validates the account Id', () => {
+      validateAccountId.mockReturnValue(true);
 
-//   beforeEach(() => {
-//     ticketService = new TicketService();
-//   });
+      const accountId = 1;
+      const ticketTypeRequests = [];
+      ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
+      expect(validateAccountId).toHaveBeenCalledWith(accountId);
+    });
 
-//   describe('purchaseTickets', () => {
-//     it('validates the account Id', () => {
-//       // validateAccountId.mockReturnValue(true);
-//       validateAccountId.mockImplementation(() => true);
+    it('validates the ticket requests', () => {
+      validateAccountId.mockReturnValue(true);
+      validateTicketRequestsForOrder.mockReturnValue(true);
 
-//       const accountId = 'XYZ';
-//       const ticketTypeRequests = [];
-//       ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
-//       expect(validateAccountId).toHaveBeenCalledWith(accountId);
-//     });
-//   });
-// });
+      const accountId = 1;
+      const ticketTypeRequests = [
+        new TicketTypeRequest('INFANT', 2),
+        new TicketTypeRequest('CHILD', 3),
+        new TicketTypeRequest('ADULT', 4)
+      ];
+      ticketService.purchaseTickets(accountId, ...ticketTypeRequests);
+      expect(validateAccountId).toHaveBeenCalledWith(accountId);
+      expect(validateTicketRequestsForOrder).toHaveBeenCalledWith(ticketTypeRequests);
+    });
+  });
 
-it('should pass', () => {
-  expect(1 + 1).toBe(2);
+  // it('limits the maximum number of tickets for a single purchase', () => {
+  //   const accountId = 1;
+  //   const ticketTypeRequests = [];
+  //   ticketsService.purchaseTickets(accountId, ...ticketTypeRequests);
+  // });
 });

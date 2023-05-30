@@ -1,4 +1,5 @@
-import { validateAccountId } from '../../../src/pairtest/lib/validation.js';
+import { validateAccountId, validateTicketRequestsForOrder } from '../../../src/pairtest/lib/validation.js';
+import TicketTypeRequest from '../../../src/pairtest/lib/TicketTypeRequest.js';
 
 describe('validation', () => {
   describe('validateAccountID', () => {
@@ -22,4 +23,39 @@ describe('validation', () => {
       expect(isValid).toBe(true);
     });
   });
+
+  describe('validateTicketRequestsForOrder', () => {
+    it('should throw an error if ticketTypeRequests is not an array', () => {
+      expect(() => {
+        const ticketTypeRequests = 'XYZ';
+        validateTicketRequestsForOrder(ticketTypeRequests);
+      }).toThrow(new TypeError('ticketTypeRequests must be an array'));
+    });
+
+    it('should throw an error if the items in ticketTypeRequests are not all of type TicketTypeRequest', () => {
+      expect(() => {
+        const ticketTypeRequests = [{type: 'ADULT', noOfTickets: 1}];
+        validateTicketRequestsForOrder(ticketTypeRequests);
+      }).toThrow(new TypeError('ticketTypeRequests must be an array of TicketTypeRequest'));
+    });
+
+    it('should throw an error if the total number of tickets requested exceeds the maximum', () => {
+      expect(() => {
+        const ticketTypeRequests = [
+          new TicketTypeRequest('INFANT', 10),
+          new TicketTypeRequest('CHILD', 10),
+          new TicketTypeRequest('ADULT', 10)
+        ];
+        validateTicketRequestsForOrder(ticketTypeRequests);
+      }).toThrow(new RangeError('Number of tickets per order must not exceed 20'));
+    });
+
+    it('should return true if the ticketTypeRequests are valid for a single order', () => {
+      const ticketTypeRequests = [new TicketTypeRequest('ADULT', 1)];
+      const isValid = validateTicketRequestsForOrder(ticketTypeRequests);
+
+      expect(isValid).toBe(true);
+    });
+  });
+
 });

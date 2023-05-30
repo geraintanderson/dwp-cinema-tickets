@@ -1,10 +1,7 @@
 const config = {
-  // setupFiles: [
-  //   '<rootDir>/test/setupTests.js'
-  // ],
-  injectGlobals: true,
-  testEnvironment: 'node',
-  transform: {}
+  transform: {
+    '^.+\\.js$': 'babel-jest'
+  }
 };
 
 export default config;

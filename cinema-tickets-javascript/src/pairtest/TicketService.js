@@ -1,6 +1,6 @@
-import TicketTypeRequest from './lib/TicketTypeRequest.js';
+// import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
-import { validateAccountId } from './lib/validation.js';
+import { validateAccountId, validateTicketRequestsForOrder } from './lib/validation.js';
 
 export default class TicketService {
   /**
@@ -18,14 +18,9 @@ export default class TicketService {
     }
   };
 
-  // #validateAccountId(accountId) {
-  //   return validateAccountID(accountId);
-  // }
-  #validateAccountId = validateAccountId;
-
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
-    this.#validateAccountId(accountId);
-    return 'XYZ'; // XXX: temp - delete this...
+    validateAccountId(accountId);
+    validateTicketRequestsForOrder(ticketTypeRequests);
   }
 }
