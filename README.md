@@ -9,3 +9,7 @@ It was unclear what should be done with `InvalidPurchaseException`. Given that t
 There's also scope to re-use some of the validation across the services (assuming the validation is the same for all use cases).
 
 I have added eslint for linting and set the rules to be consistent with the existing third party services.
+
+## Quickstart
+
+Pull the code and run the tests using `npm test` to run in watch mode or `npm run test:ci` to run once.
