@@ -10,13 +10,13 @@ export default class TicketService {
    */
   #ticketConfig = {
     INFANT: {
-      price: 0, seats: 0
+      price: 0
     },
     CHILD: {
-      price: 10, seats: 1
+      price: 10
     },
     ADULT: {
-      price: 20, seats: 1
+      price: 20
     }
   };
 

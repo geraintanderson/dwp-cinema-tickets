@@ -34,13 +34,13 @@ describe('seats', () => {
       ];
       const ticketConfig = {
         INFANT: {
-          price: 5, seats: 0
+          price: 5
         },
         CHILD: {
-          price: 7, seats: 1
+          price: 7
         },
         ADULT: {
-          price: 9, seats: 1
+          price: 9
         }
       };
       const orderTotalPrice = calculateTotalPrice(ticketConfig, ticketTypeRequests);
